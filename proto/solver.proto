@@ -2,23 +2,60 @@ syntax = "proto3";
 package solver;
 
 service Solver {
-    rpc Solve (SolveRequest) returns (SolveReply);
+    rpc Solve(SolveRequest) returns (SolveReply);
 }
 
 message SolveRequest {
-   string name = 1;
+    Subject subject = 1;
+    SupportPoint support = 2;
+}
+
+message SupportPoint {
+    repeated float values = 1;
 }
 
 message SolveReply {
-    string message = 1;
+    Subject subject = 1;
 }
 
-message Data {
-    repeated int32 parameters = 2; // Vector of i32 values
-    repeated double parameters = 3; // Vector of f64 values
+message Subject {
+    string id = 1;
+    repeated Occasion occasions = 2;
 }
 
-message Prediction {
-    map<string, int32> g = 7;
-    map<string, double> g = 8;
+message Occasion {
+    repeated Event events = 1;
+    Covariates covariates = 2;
+    int32 index = 3;
+}
+
+message Event {
+    oneof event_type {
+        Observation observation = 1;
+        Infusion infusion = 2;
+        Bolus bolus = 3;
+    }
+}
+
+message Observation {
+    double time = 1;
+    double value = 2;
+    int32 outeq = 3;
+    bool ignore = 4;
+}
+
+message Infusion {
+    double time = 1;
+    double duration = 2;
+    double amount = 3;
+}
+
+message Bolus {
+    double time = 1;
+    double amount = 2;
+    int32 input = 3;
+}
+
+message Covariates {
+    map<string, double> covariates = 1;
 }
