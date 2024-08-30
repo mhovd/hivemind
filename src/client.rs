@@ -1,21 +1,35 @@
-use hello_world::greeter_client::GreeterClient;
-use hello_world::HelloRequest;
+use solver::solver_client::SolverClient;
+use solver::{SolveRequest, Subject, SupportPoint};
 
-pub mod hello_world {
-    tonic::include_proto!("helloworld");
+pub mod solver {
+    tonic::include_proto!("solver"); // The string specified here must match the proto package name
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = GreeterClient::connect("http://[::1]:50051").await?;
+    // Connect to the gRPC server
+    let mut client = SolverClient::connect("http://[::1]:50051").await?;
 
-    let request = tonic::Request::new(HelloRequest {
-        name: "Tonic".into(),
+    // Create a sample Subject and SupportPoint
+    let subject = Subject {
+        id: "subject1".to_string(),
+        occasions: vec![], // Add any required occasions here
+    };
+
+    let support = SupportPoint {
+        values: vec![1.0, 2.0, 3.0], // Example support point values
+    };
+
+    // Create the request
+    let request = tonic::Request::new(SolveRequest {
+        subject: Some(subject),
+        support: Some(support),
     });
 
-    let response = client.say_hello(request).await?;
+    // Send the request
+    let response = client.solve(request).await?;
 
-    println!("RESPONSE={:?}", response);
+    println!("Response: {:?}", response.into_inner());
 
     Ok(())
 }

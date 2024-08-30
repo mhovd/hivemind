@@ -1,25 +1,29 @@
+use solver::solver_server::{Solver, SolverServer};
+use solver::{SolveReply, SolveRequest, Subject};
 use tonic::{transport::Server, Request, Response, Status};
 
-use hello_world::greeter_server::{Greeter, GreeterServer};
-use hello_world::{HelloReply, HelloRequest};
-
-pub mod hello_world {
-    tonic::include_proto!("helloworld");
+pub mod solver {
+    tonic::include_proto!("solver"); // The string specified here must match the proto package name
 }
 
 #[derive(Debug, Default)]
-pub struct MyGreeter {}
+pub struct MySolver {}
 
 #[tonic::async_trait]
-impl Greeter for MyGreeter {
-    async fn say_hello(
-        &self,
-        request: Request<HelloRequest>,
-    ) -> Result<Response<HelloReply>, Status> {
-        println!("Got a request: {:?}", request);
+impl Solver for MySolver {
+    async fn solve(&self, request: Request<SolveRequest>) -> Result<Response<SolveReply>, Status> {
+        println!("Received request: {:?}", request);
 
-        let reply = HelloReply {
-            message: format!("Hello {}!", request.into_inner().name),
+        // Extract the subject from the request
+        let subject = request.into_inner().subject.unwrap_or_default();
+
+        // Perform some operations with the subject and support point
+        // Here you can add your logic for processing
+        println!("Processing subject with ID: {}", subject.id);
+
+        // For demonstration purposes, we return the same subject back
+        let reply = SolveReply {
+            subject: Some(subject),
         };
 
         Ok(Response::new(reply))
@@ -28,11 +32,15 @@ impl Greeter for MyGreeter {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Define the address where the server will run
     let addr = "[::1]:50051".parse()?;
-    let greeter = MyGreeter::default();
+    let solver = MySolver::default();
 
+    println!("Server listening on {}", addr);
+
+    // Start the gRPC server
     Server::builder()
-        .add_service(GreeterServer::new(greeter))
+        .add_service(SolverServer::new(solver))
         .serve(addr)
         .await?;
 
