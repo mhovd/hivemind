@@ -1,5 +1,5 @@
 use solver::solver_server::{Solver, SolverServer};
-use solver::{SolveReply, SolveRequest, Subject};
+use solver::{SolveReply, SolveRequest};
 use tonic::{transport::Server, Request, Response, Status};
 
 pub mod solver {

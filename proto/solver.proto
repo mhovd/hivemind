@@ -26,36 +26,71 @@ message Subject {
 message Occasion {
     repeated Event events = 1;
     Covariates covariates = 2;
-    int32 index = 3;
+    uint32 index = 3;
+}
+
+message Covariates {
+    map<string, Covariate> covariates = 1;
+}
+
+message Covariate {
+    string name = 1;
+    repeated CovariateSegment segments = 2;
+}
+
+message CovariateSegment {
+    double from = 1;
+    double to = 2;
+    InterpolationMethod method = 3;
+}
+
+message InterpolationMethod {
+    oneof method {
+        Linear linear = 1;
+        CarryForward carry_forward = 2;
+    }
+
+    message Linear {
+        double slope = 1;
+        double intercept = 2;
+    }
+
+    message CarryForward {
+        double value = 1;
+    }
 }
 
 message Event {
     oneof event_type {
-        Observation observation = 1;
+        Bolus bolus = 1;
         Infusion infusion = 2;
-        Bolus bolus = 3;
+        Observation observation = 3;
     }
-}
-
-message Observation {
-    double time = 1;
-    double value = 2;
-    int32 outeq = 3;
-    bool ignore = 4;
-}
-
-message Infusion {
-    double time = 1;
-    double duration = 2;
-    double amount = 3;
 }
 
 message Bolus {
     double time = 1;
     double amount = 2;
-    int32 input = 3;
+    uint32 input = 3;
 }
 
-message Covariates {
-    map<string, double> covariates = 1;
+message Infusion {
+    double time = 1;
+    double amount = 2;
+    uint32 input = 3;
+    double duration = 4;
+}
+
+message Observation {
+    double time = 1;
+    double value = 2;
+    uint32 outeq = 3;
+    message ErrorPoly {
+        double a = 1;
+        double b = 2;
+        double c = 3;
+        double d = 4;
+    }
+    ErrorPoly errorpoly = 4;
+    bool ignore = 5;
 }
