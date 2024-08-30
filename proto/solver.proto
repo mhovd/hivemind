@@ -1,0 +1,24 @@
+syntax = "proto3";
+package solver;
+
+service Solver {
+    rpc Solve (SolveRequest) returns (SolveReply);
+}
+
+message SolveRequest {
+   string name = 1;
+}
+
+message SolveReply {
+    string message = 1;
+}
+
+message Data {
+    repeated int32 parameters = 2; // Vector of i32 values
+    repeated double parameters = 3; // Vector of f64 values
+}
+
+message Prediction {
+    map<string, int32> g = 7;
+    map<string, double> g = 8;
+}
