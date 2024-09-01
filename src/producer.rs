@@ -1,7 +1,14 @@
 use lapin::{options::*, types::FieldTable, BasicProperties, Connection, ConnectionProperties};
+use serde::{Deserialize, Serialize};
 use std::error::Error;
 
 use pharmsol::{Subject, SubjectBuilderExt};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Task {
+    subject: Subject,
+    support_point: Vec<f64>,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -27,16 +34,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Sending tasks at time {}", chrono::Utc::now());
     // Send 10 tasks
-    for i in 0..10 {
+    for i in 1..10 {
+        // Subject
         let subject = Subject::builder(i.to_string())
-            .bolus(0.0, 100.0, 1)
-            .observation(12.0, 20.0, 1)
-            .covariate("weight", 0.0, 75.0)
+            .bolus(0.0, i as f64 * 100.0, 0)
+            .observation(12.0, 20.0, 0)
             .build();
 
-        // Serialize the task to a JSON string
-        let subject = serde_json::to_string(&subject)?;
+        // Support point
+        let support_point = vec![1.0, 2.0, 0.0, 10.0];
 
+        // Create a task with the given data
+        let task = Task {
+            subject: subject,
+            support_point: support_point,
+        };
+
+        // Serialize the task to a JSON string
+        let subject = serde_json::to_string(&task)?;
+
+        // Publish the task to the queue
         channel
             .basic_publish(
                 "",
