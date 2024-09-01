@@ -3,19 +3,23 @@ name = "hivemind"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]] # Bin to run the HelloWorld gRPC server
-name = "server"
-path = "src/server.rs"
-
-[[bin]] # Bin to run the HelloWorld gRPC client
-name = "client"
-path = "src/client.rs"
-
 [dependencies]
-tonic = "0.12"
-prost = "0.13"
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
-pharmsol = {path="../../code/LAPKB/pharmsol"}
+lapin = "2.0"
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio-amqp = "2.0.0"
+chrono = "0.4.38"
+pharmsol = { path = "../pharmsol" }
+tokio-executor = "0.1.10"
+tokio-reactor = "0.1.12"
 
-[build-dependencies]
-tonic-build = "0.12"
+# Specify the binaries
+[[bin]]
+name = "producer"
+path = "src/producer.rs"
+
+[[bin]]
+name = "consumer"
+path = "src/consumer.rs"
